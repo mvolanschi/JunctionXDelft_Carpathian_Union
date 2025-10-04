@@ -135,10 +135,10 @@ export default function VoiceBars({
 
           recognition.start();
         } else {
-          console.error("SpeechRecognition not supported in this browser");
+          console.error("❌ SpeechRecognition not supported in this browser");
         }
       } catch (err) {
-        console.error("Mic access denied or error:", err);
+        console.error("❌ Mic access denied or error:", err);
       }
     }
 

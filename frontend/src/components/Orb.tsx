@@ -210,18 +210,18 @@ export default function Orb({
 
     function resize() {
       if (!container) return;
-      const dpr = window.devicePixelRatio || 1;
       const width = container.clientWidth;
       const height = container.clientHeight;
-      renderer.setSize(width * dpr, height * dpr);
+
+      // ✅ Correct for OGL (only 2 args)
+      renderer.setSize(width, height);
+
       gl.canvas.style.width = width + "px";
       gl.canvas.style.height = height + "px";
-      program.uniforms.iResolution.value.set(
-        gl.canvas.width,
-        gl.canvas.height,
-        gl.canvas.width / gl.canvas.height
-      );
+
+      program.uniforms.iResolution.value.set(width, height, width / height);
     }
+
     window.addEventListener("resize", resize);
     resize();
 
