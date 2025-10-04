@@ -96,18 +96,7 @@ def assign_speakers_to_segments(
     *,
     min_overlap_seconds: float = 0.0,
 ) -> None:
-    """Annotate segments in-place with the speaker that overlaps the most.
-
-    Parameters
-    ----------
-    segments:
-        Whisper output segments (must expose ``start``, ``end``, and ``speaker`` attributes).
-    speaker_turns:
-        Diarization speaker turns to align with the transcription segments.
-    min_overlap_seconds:
-        Minimum required overlap (in seconds) before a speaker label is applied. Set to 0 to always
-        assign the best-overlap speaker even if the overlap is tiny.
-    """
+    """Annotate segments in-place with the speaker that overlaps the most."""
 
     turns = list(speaker_turns)
     if not turns:
@@ -133,7 +122,7 @@ def assign_speakers_to_segments(
 
 
 if TYPE_CHECKING:  # pragma: no cover - static typing only
-    from app.transcription import Segment
+    from .transcription import Segment
 
 
 def _prepare_audio_for_diarization(audio_path: Path) -> tuple[Path, Path | None]:

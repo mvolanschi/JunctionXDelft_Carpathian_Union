@@ -8,8 +8,13 @@ from typing import Optional
 
 from flask import Flask, abort, jsonify, request
 
-from .config import TranscriptionSettings, get_settings
-from .transcription import TranscriptionOptions, TranscriptionResult, TranscriptionService
+from .transcription import (
+    TranscriptionOptions,
+    TranscriptionResult,
+    TranscriptionService,
+    TranscriptionSettings,
+    get_settings,
+)
 
 ALLOWED_AUDIO_SUFFIXES = {".wav", ".mp3", ".m4a", ".ogg", ".flac", ".webm"}
 

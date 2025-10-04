@@ -9,6 +9,13 @@ This service exposes a simple HTTP API for uploading speech audio (meetings, cal
 - Configurable decoding options through query parameters and environment variables.
 - Detailed segment metadata (timestamps, language, duration) for downstream analytics.
 
+### Code layout
+
+- `app/main.py` – Flask API surface wiring routes to services.
+- `app/transcription/` – Whisper transcription + diarization stack (settings, services, helpers).
+- `scripts/` – Local transcription helpers for quick smoke tests.
+- `tests/` – Unit tests for the API wiring and transcription service.
+
 ## Prerequisites
 
 - Python 3.10+
@@ -69,15 +76,14 @@ The test suite covers the Whisper service wrapper and the HTTP surface via depen
 
 ### Local CLI transcription
 
-Need to sanity-check an audio file outside the HTTP API? Use the helper script to run the same transcription pipeline locally and dump the transcript to a `.txt` file.
+Need to sanity-check an audio file outside the HTTP API? Use the bundled smoke-test script to run the same transcription pipeline locally and dump the transcript to `sample_audio_transcript.txt`.
 
 ```bash
-python -m scripts.transcribe_file /path/to/audio.mp3 --include-segments
+python app/transcription/scripts/transcribe_sample.py
 ```
 
-- By default the transcript is written alongside the audio file as `<audio>.txt`; pass `-o /path/to/output.txt` to control the destination.
-- The script respects the same environment variables documented above, and you can override decoding parameters at runtime (e.g. `--language`, `--translate`, `--beam-size`).
-- Add `--include-segments` to append timestamped segments for deeper inspection.
+- By default the script looks for `harvard.wav` in the backend folder; tweak `AUDIO_PATH` at the top of the file to point at your own recording.
+- The script respects the same environment variables documented above, so you can quickly validate configuration changes without rebuilding the API.
 
 ### Speaker diarization
 

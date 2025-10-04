@@ -2,12 +2,16 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from app.config import TranscriptionSettings
 from dataclasses import dataclass
 from typing import Iterator, Tuple
 
-from app.diarization import SpeakerTurn
-from app.transcription import Segment, TranscriptionOptions, TranscriptionService
+from app.transcription import (
+    Segment,
+    SpeakerTurn,
+    TranscriptionOptions,
+    TranscriptionService,
+    TranscriptionSettings,
+)
 
 
 @dataclass

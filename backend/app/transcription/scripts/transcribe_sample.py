@@ -6,16 +6,26 @@ from __future__ import annotations
 from pathlib import Path
 import sys
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+CURRENT_FILE = Path(__file__).resolve()
 
-from app.config import get_settings  # noqa: E402
-from app.transcription import TranscriptionService  # noqa: E402
+
+def _discover_backend_root() -> Path:
+    for parent in CURRENT_FILE.parents:
+        if (parent / "app").is_dir():
+            return parent
+    # Fallback: assume standard layout .../backend/app/transcription/scripts
+    return CURRENT_FILE.parents[2]
+
+
+BACKEND_ROOT = _discover_backend_root()
+if str(BACKEND_ROOT) not in sys.path:
+    sys.path.insert(0, str(BACKEND_ROOT))
+
+from app.transcription import TranscriptionService, get_settings  # noqa: E402
 
 # 👉 Update these paths to point at a real .m4a input on your machine.
-AUDIO_PATH = PROJECT_ROOT / "harvard.wav"
-OUTPUT_PATH = PROJECT_ROOT / "sample_audio_transcript.txt"
+AUDIO_PATH = BACKEND_ROOT / "harvard.wav"
+OUTPUT_PATH = BACKEND_ROOT / "sample_audio_transcript.txt"
 
 
 def main() -> int:
