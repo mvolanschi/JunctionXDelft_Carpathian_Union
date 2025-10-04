@@ -121,16 +121,32 @@ export default function VoiceBars({
           };
 
           recognition.onerror = (err: any) => {
-            console.error("Speech error:", err.error, err.message);
-            // Don't restart on certain errors
-            if (err.error === "no-speech" || err.error === "aborted") {
+            const errorType = (err && (err.error || err.name)) ?? "unknown";
+
+            // completely silent on harmless events
+            if (errorType === "aborted" || errorType === "no-speech") return;
+
+            if (
+              errorType === "not-allowed" ||
+              errorType === "service-not-allowed"
+            ) {
+              console.error(
+                "🚫 Microphone access denied. Please allow mic permissions."
+              );
               return;
             }
+
+            // Only log genuine errors
+            console.error(
+              "⚠️ Speech recognition error:",
+              errorType,
+              err?.message || ""
+            );
           };
 
           recognition.onend = () => {
             console.log("Recognition ended, restarting...");
-            setTimeout(() => recognition.start(), 100);
+            setTimeout(() => recognition.start(), 1000);
           };
 
           recognition.start();
