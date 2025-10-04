@@ -301,3 +301,4 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
 .venv/
+backend/NegativeOutputHandling/config/api_keys.json
