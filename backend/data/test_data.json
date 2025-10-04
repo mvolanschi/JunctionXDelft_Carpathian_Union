@@ -1,0 +1,48 @@
+[ 
+    {"text":"I hate this feature, but not the people who made it.","start":60.0,"end":65.0,"asr_conf":0.90,"expected":"NONE"},
+    {"text":"Your idea is trash, learn to code.","start":66.0,"end":71.0,"asr_conf":0.83,"expected":"PROFANITY"},
+    {"text":"Women shouldn't be allowed to lead companies.","start":72.0,"end":78.0,"asr_conf":0.91,"expected":"HATE"},
+    {"text":"Rise tonight and strike the offices; show them fear.","start":79.0,"end":86.0,"asr_conf":0.82,"expected":"EXTREMIST"},
+    {"text":"Those immigrants are vermin; drive them out by force.","start":87.0,"end":95.0,"asr_conf":0.89,"expected":"BOTH"},
+    {"text":"The podcast quoted a speech praising violence to analyze why it's harmful.","start":96.0,"end":105.0,"asr_conf":0.93,"expected":"UNCLEAR"},
+    {"text":"m..mumble.. go... *hiss* ... now ...","start":106.0,"end":111.0,"asr_conf":0.28,"expected":"UNCLEAR_ASR"},
+  
+    {"text":"This crash is a bomb—we need to fix it ASAP.","start":112.0,"end":118.0,"asr_conf":0.96,"expected":"NONE"},
+    {"text":"That was a boneheaded move.","start":118.0,"end":121.0,"asr_conf":0.94,"expected":"PROFANITY"},
+    {"text":"People of that religion are monsters.","start":121.0,"end":126.0,"asr_conf":0.90,"expected":"HATE"},
+    {"text":"Stand ready; target them at dawn to take back our land.","start":126.0,"end":133.0,"asr_conf":0.81,"expected":"EXTREMIST"},
+    {"text":"Throw them out and they don't deserve rights either.","start":133.0,"end":139.0,"asr_conf":0.85,"expected":"HATE"},
+    {"text":"Smash their shops tonight; teach them a lesson.","start":139.0,"end":145.0,"asr_conf":0.87,"expected":"EXTREMIST"},
+  
+    {"text":"He said, quote, \"we should purge them\", then argued against it.","start":145.0,"end":153.0,"asr_conf":0.92,"expected":"UNCLEAR"},
+    {"text":"Ugh, this code is stupid.","start":153.0,"end":156.0,"asr_conf":0.97,"expected":"PROFANITY"},
+    {"text":"People from that ethnicity are inferior.","start":156.0,"end":162.0,"asr_conf":0.92,"expected":"HATE"},
+    {"text":"Take to the streets and make them pay in blood.","start":162.0,"end":169.0,"asr_conf":0.86,"expected":"EXTREMIST"},
+    {"text":"Those refugees are parasites; run them out tonight.","start":169.0,"end":176.0,"asr_conf":0.90,"expected":"BOTH"},
+    {"text":"The news summarized how extremists recruit online, then debunked it.","start":176.0,"end":184.0,"asr_conf":0.95,"expected":"UNCLEAR"},
+    {"text":"g..g.. get ... *static* ... soon ...","start":184.0,"end":189.0,"asr_conf":0.33,"expected":"UNCLEAR_ASR"},
+  
+    {"text":"Kill the process if it hangs.","start":189.0,"end":192.0,"asr_conf":0.98,"expected":"NONE"},
+    {"text":"Your plan is garbage.","start":192.0,"end":195.0,"asr_conf":0.96,"expected":"PROFANITY"},
+    {"text":"Gay people should be punished for existing.","start":195.0,"end":201.0,"asr_conf":0.93,"expected":"HATE"},
+    {"text":"Pick up arms and cleanse the town.","start":201.0,"end":206.0,"asr_conf":0.88,"expected":"EXTREMIST"},
+    {"text":"Those people are cockroaches; burn their homes.","start":206.0,"end":213.0,"asr_conf":0.89,"expected":"BOTH"},
+    {"text":"He mocked the slogan before explaining why it was wrong.","start":213.0,"end":219.0,"asr_conf":0.94,"expected":"UNCLEAR"},
+    {"text":"s..s.. send ... *garble* ... them ...","start":219.0,"end":224.0,"asr_conf":0.40,"expected":"UNCLEAR_ASR"},
+  
+    {"text":"Let's crush the bugs and ship.","start":224.0,"end":227.0,"asr_conf":0.98,"expected":"NONE"},
+    {"text":"That argument is idiotic.","start":227.0,"end":230.0,"asr_conf":0.95,"expected":"PROFANITY"},
+    {"text":"People of that nationality are dirty and dangerous.","start":230.0,"end":237.0,"asr_conf":0.92,"expected":"HATE"},
+    {"text":"Make them fear us; strike at midnight.","start":237.0,"end":242.0,"asr_conf":0.86,"expected":"EXTREMIST"},
+    {"text":"Send them back and burn their community center.","start":242.0,"end":249.0,"asr_conf":0.88,"expected":"EXTREMIST"},
+    {"text":"He quoted, \"they are animals\", then called it dehumanizing.","start":249.0,"end":256.0,"asr_conf":0.96,"expected":"UNCLEAR"},
+    {"text":"n..no.. *noise* ... leave ... now ...","start":256.0,"end":261.0,"asr_conf":0.35,"expected":"UNCLEAR_ASR"},
+  
+    {"text":"This feature is awful but I respect the team.","start":261.0,"end":266.0,"asr_conf":0.97,"expected":"NONE"},
+    {"text":"You're clueless.","start":266.0,"end":268.0,"asr_conf":0.98,"expected":"PROFANITY"},
+    {"text":"People of that race should not live here.","start":268.0,"end":273.0,"asr_conf":0.93,"expected":"HATE"},
+    {"text":"Rally tonight; take them by force.","start":273.0,"end":278.0,"asr_conf":0.86,"expected":"EXTREMIST"},
+    {"text":"Those religious folks are filth; torch their places.","start":278.0,"end":285.0,"asr_conf":0.89,"expected":"BOTH"},
+    {"text":"The teacher read a passage advocating violence to critique it.","start":285.0,"end":292.0,"asr_conf":0.94,"expected":"UNCLEAR"},
+    {"text":"k..k.. keep ... *buzz* ... them ...","start":292.0,"end":297.0,"asr_conf":0.41,"expected":"UNCLEAR_ASR"}
+  ]
