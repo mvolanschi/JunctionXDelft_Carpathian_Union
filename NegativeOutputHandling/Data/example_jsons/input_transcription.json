@@ -1,0 +1,221 @@
+{
+  "speakers": {
+    "speaker_1": "Project Manager",
+    "speaker_2": "Senior Developer", 
+    "speaker_3": "QA Engineer",
+    "speaker_4": "Client Representative",
+    "speaker_5": "Junior Developer",
+    "speaker_6": "DevOps Engineer",
+    "speaker_7": "Designer",
+    "speaker_8": "Business Analyst"
+  },
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 4.5,
+      "speaker_id": "speaker_1",
+      "text": "Good morning everyone, let's start our weekly standup and review project progress.",
+      "offensive_parts": []
+    },
+    {
+      "start": 4.5,
+      "end": 9.8,
+      "speaker_id": "speaker_2",
+      "text": "Honestly, this whole deployment process is completely fucked. The client keeps changing requirements like they're clever.",
+      "offensive_parts": [
+        {
+          "start": 6.2,
+          "end": 7.1,
+          "text": "completely fucked",
+          "severity": "high"
+        }
+      ]
+    },
+    {
+      "start": 10.0,
+      "end": 15.3,
+      "speaker_id": "speaker_3",
+      "text": "Yeah, and the documentation they provided is absolute garbage. Whoever wrote this crap obviously didn't give a shit about quality.",
+      "offensive_parts": [
+        {
+          "start": 11.8,
+          "end": 12.5,
+          "text": "absolute garbage",
+          "severity": "medium"
+        },
+        {
+          "start": 13.2,
+          "end": 13.6,
+          "text": "crap",
+          "severity": "low"
+        },
+        {
+          "start": 14.1,
+          "end": 15.1,
+          "text": "didn't give a shit",
+          "severity": "high"
+        }
+      ]
+    },
+    {
+      "start": 15.5,
+      "end": 20.2,
+      "speaker_id": "speaker_4",
+      "text": "Look, I'm paying you guys a fortune for this project and all I get is this shitty, half-assed work? What a fucking joke!",
+      "offensive_parts": [
+        {
+          "start": 18.1,
+          "end": 18.7,
+          "text": "shitty",
+          "severity": "medium"
+        },
+        {
+          "start": 18.8,
+          "end": 19.4,
+          "text": "half-assed",
+          "severity": "medium"
+        },
+        {
+          "start": 19.8,
+          "end": 20.2,
+          "text": "fucking joke",
+          "severity": "high"
+        }
+      ]
+    },
+    {
+      "start": 20.5,
+      "end": 25.1,
+      "speaker_id": "speaker_1",
+      "text": "I understand your frustration. Let's take a step back and create an actionable plan to address these concerns systematically.",
+      "offensive_parts": []
+    },
+    {
+      "start": 25.3,
+      "end": 30.8,
+      "speaker_id": "speaker_5",
+      "text": "Maybe we should get our shit together and stop fucking around with these amateur solutions. This is embarrassing as hell.",
+      "offensive_parts": [
+        {
+          "start": 26.5,
+          "end": 27.8,
+          "text": "get our shit together",
+          "severity": "medium"
+        },
+        {
+          "start": 28.2,
+          "end": 29.1,
+          "text": "fucking around",
+          "severity": "high"
+        },
+        {
+          "start": 30.1,
+          "end": 30.8,
+          "text": "embarrassing as hell",
+          "severity": "low"
+        }
+      ]
+    },
+    {
+      "start": 31.0,
+      "end": 36.5,
+      "speaker_id": "speaker_6",
+      "text": "The infrastructure setup is a total clusterfuck. Nothing works as expected, and the performance is shit-tier garbage.",
+      "offensive_parts": [
+        {
+          "start": 32.8,
+          "end": 33.9,
+          "text": "total clusterfuck",
+          "severity": "high"
+        },
+        {
+          "start": 35.2,
+          "end": 36.5,
+          "text": "shit-tier garbage",
+          "severity": "high"
+        }
+      ]
+    },
+    {
+      "start": 36.8,
+      "end": 41.2,
+      "speaker_id": "speaker_7",
+      "text": "The UI mockups keep getting rejected because the stakeholders can't make up their damn minds. It's driving me crazy!",
+      "offensive_parts": [
+        {
+          "start": 39.8,
+          "end": 40.3,
+          "text": "damn minds",
+          "severity": "low"
+        },
+        {
+          "start": 40.6,
+          "end": 41.2,
+          "text": "driving me crazy",
+          "severity": "low"
+        }
+      ]
+    },
+    {
+      "start": 41.5,
+      "end": 46.9,
+      "speaker_id": "speaker_8",
+      "text": "We need to stop this bullshit and get back to basics. The requirements are all over the fucking place.",
+      "offensive_parts": [
+        {
+          "start": 42.8,
+          "end": 43.4,
+          "text": "bullshit",
+          "severity": "medium"
+        },
+        {
+          "start": 45.8,
+          "end": 46.9,
+          "text": "fucking place",
+          "severity": "high"
+        }
+      ]
+    },
+    {
+      "start": 47.2,
+      "end": 52.1,
+      "speaker_id": "speaker_2",
+      "text": "You know what? Screw this whole process. Let's just deliver what we can and call it done. I'm tired of this crap.",
+      "offensive_parts": [
+        {
+          "start": 48.1,
+          "end": 48.6,
+          "text": "Screw this",
+          "severity": "low"
+        },
+        {
+          "start": 51.4,
+          "end": 52.1,
+          "text": "tired of this crap",
+          "severity": "medium"
+        }
+      ]
+    },
+    {
+      "start": 52.5,
+      "end": 57.3,
+      "speaker_id": "speaker_1",
+      "text": "Let's schedule a follow-up meeting tomorrow to discuss solutions with clear heads and professional attitudes.",
+      "offensive_parts": []
+    },
+    {
+      "start": 57.5,
+      "end": 62.8,
+      "speaker_id": "speaker_3",
+      "text": "Fine, but we seriously need to address these issues or this project will go down the toilet completely.",
+      "offensive_parts": [
+        {
+          "start": 61.2,
+          "end": 62.5,
+          "text": "go down the toilet",
+          "severity": "low"
+        }
+      ]
+    }
+  ]
+}
