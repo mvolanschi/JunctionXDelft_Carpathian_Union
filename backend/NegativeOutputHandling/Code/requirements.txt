@@ -1,10 +1,19 @@
-# Required packages for free open-source AI models
+# Core Speech Processing Dependencies
+elevenlabs>=0.2.26
 groq>=0.4.0
 requests>=2.31.0
 
-# Voice analysis and generation
+# Audio processing and analysis
 librosa>=0.10.0
 numpy>=1.21.0
+scipy>=1.9.0
+pygame>=2.5.0
+
+# Alternative TTS (fallback options)
 pyttsx3>=2.90
 gtts>=2.4.0
-pygame>=2.5.0
+
+# Utility libraries
+pathlib>=1.0.0
+asyncio>=3.4.0
+dataclasses>=0.6

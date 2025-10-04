@@ -33,11 +33,11 @@ from app.moderation_pipeline import AudioModerationPipeline, ModerationResult
 def main() -> int:
     repo_root = Path(__file__).resolve().parents[3]
     backend_root = repo_root
-    input_audio = backend_root / "sample_audio_rec.m4a"
+    input_audio = backend_root / "shmarnalysis.m4a"
 
     if not input_audio.exists():
         print(
-            f"Expected audio file at {input_audio}. Please place 'sample_audio_rec.m4a' in the backend directory.",
+            f"Expected audio file at {input_audio}. Please place 'shmarnalysis.m4a' in the backend directory.",
             file=sys.stderr,
         )
         return 1
