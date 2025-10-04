@@ -1,0 +1,36 @@
+# Unified Requirements for Both Backend Components
+# Compatible with Python 3.9+ (recommended: Python 3.10+)
+
+# Flask Backend Dependencies
+flask==3.0.3
+python-dotenv==1.0.1
+
+# Audio Processing (Shared)
+faster-whisper==1.0.3
+pyannote.audio==3.3.1
+torch==2.4.1
+torchaudio==2.4.1
+librosa>=0.10.0
+pydub>=0.25.1
+numpy>=1.21.0,<2.0.0
+scipy>=1.9.0
+
+# AI/ML Dependencies (Shared)
+groq>=0.4.0
+transformers>=4.30.0
+datasets>=2.14.0
+
+# NegativeOutputHandling Dependencies
+elevenlabs>=0.2.26
+requests>=2.31.0
+pygame>=2.5.0
+pyttsx3>=2.90
+gtts>=2.4.0
+
+# Development and Testing
+pytest==8.3.2
+jsonschema>=4.17.0
+tqdm>=4.66.0
+
+# Python Version Compatibility
+typing-extensions>=4.0.0  # For older Python versions to support new union syntax
