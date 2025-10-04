@@ -90,3 +90,33 @@ python app/transcription/scripts/transcribe_sample.py
 Set `DIARIZATION_ENABLED=true` and supply a Hugging Face access token (via `DIARIZATION_AUTH_TOKEN` or `HUGGINGFACE_TOKEN`) to enable the built-in [pyannote.audio](https://github.com/pyannote/pyannote-audio) diarization pipeline. When enabled, each transcription segment includes a `speaker` label and the CLI outputs dialog-style lines.
 
 > **Tip:** Because the diarization model loads alongside Whisper, keep both services warm in long-running processes to avoid repeated initialisation overhead. For CPU-only environments you may prefer a smaller diarization checkpoint or increase `DIARIZATION_MIN_OVERLAP` to reduce speaker jitter.
+
+### Moderation & redaction pipeline
+
+The backend exposes an `AudioModerationPipeline` orchestrator that chains transcription, diarization (when enabled), and the hate-speech classifier. It returns classified segments ready for a frontend and can optionally emit a redacted audio file where flagged spans (defaults: `HATE`, `EXTREMIST`, `BOTH`) are removed.
+
+```python
+from pathlib import Path
+
+from app.moderation_pipeline import AudioModerationPipeline
+
+pipeline = AudioModerationPipeline()
+result = pipeline.run(Path("/path/to/input.wav"))
+
+print(result.transcript)
+for segment in result.segments:
+  print(f"[{segment.start:0.2f}-{segment.end:0.2f}] {segment.label}: {segment.text}")
+
+if result.has_redacted_audio:
+  print(f"Redacted audio ready at {result.sanitized_audio_path}")
+```
+
+You can customise removal policies or the redacted output location:
+
+```python
+pipeline = AudioModerationPipeline(removal_labels={"HATE", "EXTREMIST", "PROFANITY"})
+result = pipeline.run(
+  "/path/to/input.wav",
+  output_path=Path("/tmp/input.redacted.wav"),
+)
+```

@@ -15,6 +15,9 @@ from .transcription import (
     TranscriptionSettings,
     get_settings,
 )
+from .moderation_pipeline import AudioModerationPipeline
+import base64
+from flask import current_app
 
 ALLOWED_AUDIO_SUFFIXES = {".wav", ".mp3", ".m4a", ".ogg", ".flac", ".webm"}
 
@@ -122,6 +125,95 @@ def create_app(
     @app.get("/health")
     def healthcheck():
         return jsonify({"status": "ok"})
+
+    @app.post("/moderations")
+    def create_moderation():
+        """Accept an audio file, run the moderation pipeline, and return JSON with
+        the classified transcript and (optionally) the redacted audio as a base64 blob.
+        """
+        if "file" not in request.files:
+            abort(HTTPStatus.BAD_REQUEST, description="Missing 'file' form-field")
+
+        uploaded = request.files["file"]
+        safe_name = _validate_audio_file(uploaded.filename)
+
+        raw_bytes = uploaded.read()
+        if not raw_bytes:
+            abort(HTTPStatus.BAD_REQUEST, description="Empty audio payload")
+
+        suffix = safe_name.suffix or ".tmp"
+        with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+            tmp.write(raw_bytes)
+            tmp.flush()
+            tmp_path = Path(tmp.name)
+
+        try:
+            options = TranscriptionOptions(
+                language=request.form.get("language") or request.args.get("language"),
+                translate=_to_bool(request.form.get("translate") or request.args.get("translate")),
+                temperature=_to_optional_float(request.form.get("temperature") or request.args.get("temperature")),
+                initial_prompt=request.form.get("initial_prompt") or request.args.get("initial_prompt"),
+            )
+
+            removal_labels_raw = request.form.get("removal_labels") or request.args.get("removal_labels")
+            removal_labels = None
+            if removal_labels_raw:
+                # comma-separated labels
+                removal_labels = {part.strip() for part in removal_labels_raw.split(",") if part.strip()}
+
+            pipeline = AudioModerationPipeline(removal_labels=removal_labels)
+            result = pipeline.run(tmp_path, options=options)
+
+            # Serialize result
+            segments = []
+            for seg in result.segments:
+                segments.append(
+                    {
+                        "index": seg.index,
+                        "start": seg.start,
+                        "end": seg.end,
+                        "text": seg.text,
+                        "speaker": seg.speaker,
+                        "classification": {
+                            "label": seg.classification.label,
+                            "rationale": seg.classification.rationale,
+                            "spans": [
+                                {"quote": s.quote, "char_start": s.char_start, "char_end": s.char_end}
+                                for s in seg.classification.spans
+                            ],
+                            "safety": seg.classification.safety,
+                        },
+                    }
+                )
+
+            payload = {
+                "transcript": result.transcript,
+                "language": result.language,
+                "duration": result.duration,
+                "model": result.model,
+                "segments": segments,
+                "removed_intervals": result.removed_intervals,
+            }
+
+            # If a redacted audio exists, include it as base64 (frontend can decode to blob)
+            if result.sanitized_audio_path and result.sanitized_audio_path.exists():
+                try:
+                    with open(result.sanitized_audio_path, "rb") as f:
+                        b = f.read()
+                    payload["redacted_audio"] = {
+                        "filename": result.sanitized_audio_path.name,
+                        "content_type": "audio/" + result.sanitized_audio_path.suffix.lstrip("."),
+                        "data_base64": base64.b64encode(b).decode("ascii"),
+                    }
+                except Exception:
+                    current_app.logger.exception("Failed to read redacted audio file")
+
+            return jsonify(payload)
+        finally:
+            try:
+                os.unlink(tmp_path)
+            except Exception:
+                pass
 
     return app
 
