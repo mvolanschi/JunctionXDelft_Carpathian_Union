@@ -4,8 +4,6 @@ import wave
 from pathlib import Path
 from typing import List
 
-import pytest
-
 from app.moderation_pipeline import AudioModerationPipeline, ModerationResult
 from app.transcription.transcription import Segment, TranscriptionResult
 from app.classification_model.hate_speech_classifier import ClassificationInput, ClassificationOutput
@@ -52,12 +50,7 @@ def _write_silent_wav(path: Path, *, duration_s: float, sample_rate: int = 16000
         wav_file.writeframes(silence_frame * total_frames)
 
 
-def _wav_duration(path: Path) -> float:
-    with wave.open(path.as_posix(), "r") as wav_file:
-        return wav_file.getnframes() / float(wav_file.getframerate())
-
-
-def test_pipeline_classifies_and_redacts(tmp_path):
+def test_pipeline_classifies_and_returns_audio(tmp_path):
     input_path = tmp_path / "input.wav"
     _write_silent_wav(input_path, duration_s=2.0)
 
@@ -73,23 +66,15 @@ def test_pipeline_classifies_and_redacts(tmp_path):
         classifier=classifier,
     )
 
-    output_path = tmp_path / "redacted.wav"
-    result = pipeline.run(input_path, output_path=output_path)
+    result = pipeline.run(input_path)
 
     assert isinstance(result, ModerationResult)
     assert len(result.segments) == 2
     assert result.segments[1].label == "HATE"
-    assert result.removed_intervals == [(1.0, 2.0)]
-    assert result.sanitized_audio_path == output_path
-    assert output_path.exists()
-
-    original_duration = _wav_duration(input_path)
-    redacted_duration = _wav_duration(output_path)
-    assert original_duration == pytest.approx(2.0, rel=0.05)
-    assert redacted_duration == pytest.approx(1.0, rel=0.05)
+    assert result.audio_bytes == input_path.read_bytes()
 
 
-def test_pipeline_skips_redaction_when_no_flags(tmp_path):
+def test_pipeline_handles_all_clear_segments(tmp_path):
     input_path = tmp_path / "input.wav"
     _write_silent_wav(input_path, duration_s=1.0)
 
@@ -107,8 +92,8 @@ def test_pipeline_skips_redaction_when_no_flags(tmp_path):
     result = pipeline.run(input_path)
 
     assert len(result.segments) == 1
-    assert result.removed_intervals == []
-    assert result.sanitized_audio_path is None
+    assert result.segments[0].label == "NONE"
+    assert result.audio_bytes == input_path.read_bytes()
 
 
 if __name__ == "__main__":  # pragma: no cover - direct execution helper

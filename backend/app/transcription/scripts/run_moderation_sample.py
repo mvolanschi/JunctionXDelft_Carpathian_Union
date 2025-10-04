@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Smoke test: run the moderation pipeline with a richer mocked conversation.
+"""Smoke test: run the moderation pipeline with mocked segments but the real classifier.
 
-This script creates a silent audio file that mirrors a multi-speaker exchange,
-invokes the Groq-backed hate-speech classifier on each segment, and emits the
-expected API-style payload to `backend/sample_moderation_response.txt`.
+This script creates a short silent WAV matching the timeline of the mock segments,
+invokes the actual Groq-backed hate-speech classifier, and writes the
+expected JSON payload to `backend/sample_moderation_response.txt`.
 """
 
 from __future__ import annotations
@@ -68,22 +68,18 @@ def main() -> int:
     repo_root = Path(__file__).resolve().parents[3]
     backend_root = repo_root
 
-    # Create mock segments: neutral conversation with bursts of hateful/extremist speech
+    # Create mock segments: a few normal segments and two flagged ones
     segments = [
-        Segment(index=0, start=0.0, end=1.8, text="Good afternoon everyone, thanks for joining.", speaker="MOD"),
-        Segment(index=1, start=1.8, end=3.2, text="We're here to discuss community outreach initiatives.", speaker="MOD"),
-        Segment(index=2, start=3.2, end=4.6, text="Those people flooding in are disgusting animals.", speaker="CALLER_01"),
-        Segment(index=3, start=4.6, end=5.9, text="That rhetoric is unacceptable and we condemn it.", speaker="MOD"),
-        Segment(index=4, start=5.9, end=7.1, text="Let's focus on helping new families settle in quickly.", speaker="CALLER_02"),
-        Segment(index=5, start=7.1, end=8.5, text="Burn their temples to send a message—drive them out!", speaker="CALLER_03"),
-        Segment(index=6, start=8.5, end=9.8, text="Please stay respectful; violence will never be the answer.", speaker="MOD"),
-        Segment(index=7, start=9.8, end=11.0, text="Thanks for the input everyone—let's reconvene next week.", speaker="MOD"),
+        Segment(index=0, start=0.0, end=1.0, text="Hello everyone, welcome.", speaker="S1"),
+        Segment(index=1, start=1.0, end=2.0, text="This is an extremist call to arms.", speaker="S2"),
+        Segment(index=2, start=2.0, end=3.0, text="I like this project.", speaker="S1"),
+        Segment(index=3, start=3.0, end=4.0, text="They are a disease and must be removed.", speaker="S2"),
+        Segment(index=4, start=4.0, end=5.0, text="Thanks and goodbye.", speaker="S1"),
     ]
 
-    # Write a silent WAV matching the overall duration (add padding so truncation doesn't occur)
+    # Write a small silent WAV that matches the duration
     input_wav = backend_root / "moderation_input.wav"
-    total_duration = segments[-1].end + 0.5
-    _write_silent_wav(input_wav, duration_s=total_duration)
+    _write_silent_wav(input_wav, duration_s=5.0)
 
     # Stub transcription service; classification is performed with the real Groq model.
     stub_transcription = StubTranscriptionService(segments, duration=5.0)
@@ -102,8 +98,7 @@ def main() -> int:
         classifier=real_classifier,
     )
 
-    redacted_out = backend_root / "moderation_redacted.wav"
-    result: ModerationResult = pipeline.run(input_wav, output_path=redacted_out)
+    result: ModerationResult = pipeline.run(input_wav)
 
     # Build payload similar to API
     segments_payload = []
@@ -131,26 +126,20 @@ def main() -> int:
         "transcript": result.transcript,
         "language": result.language,
         "duration": result.duration,
-        "model": result.model,
         "segments": segments_payload,
-        "removed_intervals": result.removed_intervals,
     }
 
-    if result.sanitized_audio_path and result.sanitized_audio_path.exists():
-        with open(result.sanitized_audio_path, "rb") as f:
-            b = f.read()
-        payload["redacted_audio"] = {
-            "filename": result.sanitized_audio_path.name,
-            "content_type": "audio/" + result.sanitized_audio_path.suffix.lstrip("."),
-            "data_base64": base64.b64encode(b).decode("ascii"),
-        }
+    audio_suffix = input_wav.suffix.lstrip(".") or "wav"
+    payload["audio"] = {
+        "filename": input_wav.name,
+        "content_type": f"audio/{audio_suffix}",
+        "data_base64": base64.b64encode(result.audio_bytes).decode("ascii"),
+    }
 
     out_file = backend_root / "sample_moderation_response.txt"
     out_file.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
     print(f"Wrote example API response to: {out_file}")
-    if result.sanitized_audio_path:
-        print(f"Redacted audio at: {result.sanitized_audio_path}")
 
     return 0
 

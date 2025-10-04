@@ -17,7 +17,6 @@ from .transcription import (
 )
 from .moderation_pipeline import AudioModerationPipeline
 import base64
-from flask import current_app
 
 ALLOWED_AUDIO_SUFFIXES = {".wav", ".mp3", ".m4a", ".ogg", ".flac", ".webm"}
 
@@ -128,9 +127,7 @@ def create_app(
 
     @app.post("/moderations")
     def create_moderation():
-        """Accept an audio file, run the moderation pipeline, and return JSON with
-        the classified transcript and (optionally) the redacted audio as a base64 blob.
-        """
+        """Accept an audio file, run the moderation pipeline, and return classified transcript + audio."""
         if "file" not in request.files:
             abort(HTTPStatus.BAD_REQUEST, description="Missing 'file' form-field")
 
@@ -155,13 +152,7 @@ def create_app(
                 initial_prompt=request.form.get("initial_prompt") or request.args.get("initial_prompt"),
             )
 
-            removal_labels_raw = request.form.get("removal_labels") or request.args.get("removal_labels")
-            removal_labels = None
-            if removal_labels_raw:
-                # comma-separated labels
-                removal_labels = {part.strip() for part in removal_labels_raw.split(",") if part.strip()}
-
-            pipeline = AudioModerationPipeline(removal_labels=removal_labels)
+            pipeline = AudioModerationPipeline()
             result = pipeline.run(tmp_path, options=options)
 
             # Serialize result
@@ -190,23 +181,15 @@ def create_app(
                 "transcript": result.transcript,
                 "language": result.language,
                 "duration": result.duration,
-                "model": result.model,
                 "segments": segments,
-                "removed_intervals": result.removed_intervals,
             }
 
-            # If a redacted audio exists, include it as base64 (frontend can decode to blob)
-            if result.sanitized_audio_path and result.sanitized_audio_path.exists():
-                try:
-                    with open(result.sanitized_audio_path, "rb") as f:
-                        b = f.read()
-                    payload["redacted_audio"] = {
-                        "filename": result.sanitized_audio_path.name,
-                        "content_type": "audio/" + result.sanitized_audio_path.suffix.lstrip("."),
-                        "data_base64": base64.b64encode(b).decode("ascii"),
-                    }
-                except Exception:
-                    current_app.logger.exception("Failed to read redacted audio file")
+            audio_suffix = safe_name.suffix.lstrip(".") or "wav"
+            payload["audio"] = {
+                "filename": safe_name.name,
+                "content_type": f"audio/{audio_suffix}",
+                "data_base64": base64.b64encode(result.audio_bytes).decode("ascii"),
+            }
 
             return jsonify(payload)
         finally:
