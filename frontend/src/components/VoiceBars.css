@@ -1,0 +1,43 @@
+.voice-coder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 5px;
+  z-index: 0;
+}
+
+.voice-coder span {
+  flex: 1;
+  max-width: 2px;
+  height: 40%;
+  background: linear-gradient(
+    to top,
+    #0a0c26 5%,
+    #3c0d99,
+    #4cc9f0,
+    #4361ee,
+    #3c0d99,
+    #0a0c26 95%
+  );
+  border-radius: 2px;
+  opacity: 0.85;
+  transform-origin: center center;
+  transform: scaleY(0);
+  transition: transform 0.05s linear, background 0.3s ease;
+}
+
+/* 🔴 Red when hit */
+.voice-coder.hit span {
+  background: linear-gradient(
+    to top,
+    #330000 5%,
+    #ff0000,
+    #ff4d4d,
+    #ff0000,
+    #330000 95%
+  ) !important;
+  opacity: 0.95 !important;
+  box-shadow: 0 0 14px rgba(255, 26, 26, 0.5);
+}
