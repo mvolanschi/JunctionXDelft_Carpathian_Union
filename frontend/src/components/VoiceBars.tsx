@@ -25,6 +25,7 @@ export default function VoiceBars({
 }: VoiceBarsProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [hit, setHit] = useState(false);
+  const lastHitTime = useRef(0);
 
   useEffect(() => {
     let audioContext: AudioContext | null = null;
@@ -86,33 +87,58 @@ export default function VoiceBars({
           recognition = new SpeechRecognition();
           recognition.lang = lang;
           recognition.continuous = true;
-          recognition.interimResults = false;
+          recognition.interimResults = true;
+          recognition.maxAlternatives = 1;
+
+          recognition.onstart = () => {
+            console.log("🎙️ Recognition started");
+          };
 
           recognition.onresult = (event: SpeechRecognitionEvent) => {
-            const transcript = event.results[
-              event.results.length - 1
-            ][0].transcript
-              .trim()
-              .toLowerCase();
+            // Get the CURRENT result (most recent, could be interim or final)
+            const currentResult = event.results[event.resultIndex];
+            const transcript = currentResult[0].transcript.trim().toLowerCase();
 
-            console.log("🎤 Heard:", transcript);
+            console.log(
+              "🎤 Heard:",
+              transcript,
+              "isFinal:",
+              currentResult.isFinal,
+              "resultIndex:",
+              event.resultIndex
+            );
 
+            // Check immediately - don't wait
             if (transcript.includes(keyword.toLowerCase())) {
-              setHit(true);
-              setTimeout(() => setHit(false), hitDurationMs);
+              const now = Date.now();
+              if (now - lastHitTime.current > 500) {
+                // Reduced threshold
+                lastHitTime.current = now;
+                setHit(true);
+                setTimeout(() => setHit(false), hitDurationMs);
+              }
             }
           };
 
-          recognition.onerror = (err: any) =>
-            console.error("Speech error:", err);
-          recognition.onend = () => recognition.start(); // auto-restart
+          recognition.onerror = (err: any) => {
+            console.error("Speech error:", err.error, err.message);
+            // Don't restart on certain errors
+            if (err.error === "no-speech" || err.error === "aborted") {
+              return;
+            }
+          };
+
+          recognition.onend = () => {
+            console.log("Recognition ended, restarting...");
+            setTimeout(() => recognition.start(), 100);
+          };
 
           recognition.start();
         } else {
-          console.error("❌ SpeechRecognition not supported in this browser");
+          console.error("SpeechRecognition not supported in this browser");
         }
       } catch (err) {
-        console.error("❌ Mic access denied or error:", err);
+        console.error("Mic access denied or error:", err);
       }
     }
 
