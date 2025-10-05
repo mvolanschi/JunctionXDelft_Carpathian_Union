@@ -2,6 +2,7 @@ datasets>=2.14.0
 elevenlabs>=0.2.26
 faster-whisper==1.0.3
 flask==3.0.3
+flask-cors==4.0.0
 groq>=0.4.0
 gtts>=2.4.0
 jsonschema>=4.17.0

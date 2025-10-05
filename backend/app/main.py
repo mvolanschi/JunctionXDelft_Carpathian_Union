@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Optional
 
 from flask import Flask, abort, jsonify, request
+from flask_cors import CORS
 
 from .transcription import (
     TranscriptionOptions,
@@ -19,7 +20,7 @@ from .moderation_pipeline import AudioModerationPipeline
 from .negative_output_handling import run_negative_output_handling
 import base64
 
-ALLOWED_AUDIO_SUFFIXES = {".wav", ".mp3", ".m4a", ".ogg", ".flac", ".webm"}
+ALLOWED_AUDIO_SUFFIXES = {".wav", ".mp3", ".m4a", ".ogg", ".flac", ".webm", ".mp4"}
 
 
 def _validate_audio_file(filename: str | None) -> Path:
@@ -78,6 +79,7 @@ def create_app(
 ) -> Flask:
     settings = settings or get_settings()
     app = Flask(__name__)
+    CORS(app)
     transcription_service = service or TranscriptionService(settings)
 
     @app.errorhandler(HTTPStatus.BAD_REQUEST)

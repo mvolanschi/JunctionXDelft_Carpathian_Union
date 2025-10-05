@@ -27,68 +27,155 @@ export default function GetStartedPage() {
     }
   };
 
-  const handleProcess = () => {
+  const handleProcess = async () => {
     if (!file) return;
     setIsProcessing(true);
 
-    // Step 2: Real transcript with hate & profanity highlighted in red
-    setTimeout(() => {
-      const originalTranscript = `
-      I've been volunteering at the neighborhood center again, I started. 
-      Kids from the after school program showed me the posters they drew, and the city finally approved repainting the courtyard. 
-      Attendance is decent, but scheduling this stuff can be <span class='text-red-500 font-semibold'>fucking annoying</span> when volunteers cancel last minute. 
-      Still, the bakery on Maple donated leftover bread, so we had plenty for the potluck. 
-      Feels good to see everyone pitching in, because lately I've been stewing about what's happening. 
-      <span class='text-red-500 font-semibold'>I hate those damn Romanians, taking our jobs and all.</span> 
-      I've been thinking about it a lot lately. 
-      <span class='text-red-500 font-semibold'>All they do is lay on the couch and take benefits.</span> 
-      We should do something with them. 
-      After venting like that, calm down and remind myself we still have grocery vouchers to distribute. 
-      If I get the paperwork done tonight, we can hand out backpacks tomorrow. 
-      I'll prepare a summary for the board meeting and see if we can add a weekend job there. 
-      Anyway, I should head out. Thanks for listening.
-      `;
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+      const response = await fetch(`${apiUrl}/moderations`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      // Build transcript with flagged content highlighted in red
+      let originalTranscript = '';
+      const flaggedLabels = ['PROFANITY', 'HATE', 'EXTREMIST', 'BOTH'];
+
+      for (const segment of data.segments) {
+        const text = segment.text;
+        const classification = segment.classification;
+
+        if (flaggedLabels.includes(classification.label) && classification.spans.length > 0) {
+          // Highlight flagged spans in red
+          let highlightedText = text;
+          const sortedSpans = [...classification.spans].sort((a, b) => b.char_start - a.char_start);
+
+          for (const span of sortedSpans) {
+            const before = highlightedText.substring(0, span.char_start);
+            const flagged = highlightedText.substring(span.char_start, span.char_end);
+            const after = highlightedText.substring(span.char_end);
+            highlightedText = `${before}<span class='text-red-500 font-semibold'>${flagged}</span>${after}`;
+          }
+          originalTranscript += highlightedText + ' ';
+        } else {
+          originalTranscript += text + ' ';
+        }
+      }
+
       setTranscript(originalTranscript);
       setIsProcessing(false);
       setCurrentStep(2);
-    }, 7000); // ⏳ extended delay (7 seconds)
+    } catch (error) {
+      console.error('Error processing audio:', error);
+      setIsProcessing(false);
+      alert('Failed to process audio. Make sure the backend server is running.');
+    }
   };
 
-  const handleTransform = () => {
+  const handleTransform = async () => {
     setIsTransforming(true);
 
-    // Step 3: Cleaned transcript with replacements highlighted in green
-    setTimeout(() => {
-      const cleanedTranscript = `
-    I've been volunteering at the neighborhood center again, I started. 
-    Kids from the after school program showed me the posters they drew, and the city finally approved repainting the courtyard. 
-    Attendance is decent, but scheduling this stuff can be <span class='text-green-400 font-semibold'>really annoying</span> when volunteers cancel last minute. 
-    Still, the bakery on Maple donated leftover bread, so we had plenty for the potluck. 
-    Feels good to see everyone pitching in, because lately I've been stewing about what's happening. 
-    <span class='text-green-400 font-semibold'>I’ve been upset lately about job insecurity and competition, but I know blaming people isn’t right.</span> 
-    I've been thinking about it a lot lately. 
-    <span class='text-green-400 font-semibold'>Some people rely on benefits when times are tough, and I should try to be more understanding.</span> 
-    We should do something with them. 
-    After venting like that, calm down and remind myself we still have grocery vouchers to distribute. 
-    If I get the paperwork done tonight, we can hand out backpacks tomorrow. 
-    I'll prepare a summary for the board meeting and see if we can add a weekend job there. 
-    Anyway, I should head out. Thanks for listening.
+    try {
+      const formData = new FormData();
+      formData.append('file', file!);
+      formData.append('mode', 'negative_output_handling');
 
-      `;
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+      const response = await fetch(`${apiUrl}/moderations`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      // Build cleaned transcript with replacements highlighted in green
+      let cleanedTranscript = '';
+      const flaggedLabels = ['PROFANITY', 'HATE', 'EXTREMIST', 'BOTH'];
+
+      for (const segment of data.segments) {
+        const text = segment.text;
+        const classification = segment.classification;
+
+        if (flaggedLabels.includes(classification.label) && classification.spans.length > 0) {
+          // Highlight replaced spans in green (assuming backend replaces them)
+          let highlightedText = text;
+          const sortedSpans = [...classification.spans].sort((a, b) => b.char_start - a.char_start);
+
+          for (const span of sortedSpans) {
+            const before = highlightedText.substring(0, span.char_start);
+            const replaced = highlightedText.substring(span.char_start, span.char_end);
+            const after = highlightedText.substring(span.char_end);
+            highlightedText = `${before}<span class='text-green-400 font-semibold'>${replaced}</span>${after}`;
+          }
+          cleanedTranscript += highlightedText + ' ';
+        } else {
+          cleanedTranscript += text + ' ';
+        }
+      }
+
       setCleanTranscript(cleanedTranscript);
       setIsTransforming(false);
       setCurrentStep(3);
-    }, 8000); // ⏳ extended delay (8 seconds)
+    } catch (error) {
+      console.error('Error transforming transcript:', error);
+      setIsTransforming(false);
+      alert('Failed to transform transcript. Make sure the backend server is running.');
+    }
   };
 
-  const handleGenerateAudio = () => {
+  const handleGenerateAudio = async () => {
     setIsProcessing(true);
-    setTimeout(() => {
-      const outputs = ["/clean.mpeg"];
-      setModifiedAudios(outputs);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file!);
+      formData.append('mode', 'negative_output_handling');
+
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+      const response = await fetch(`${apiUrl}/moderations`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      // Convert base64 audio to blob URL
+      if (data.audio && data.audio.data_base64) {
+        const audioBytes = atob(data.audio.data_base64);
+        const audioArray = new Uint8Array(audioBytes.length);
+        for (let i = 0; i < audioBytes.length; i++) {
+          audioArray[i] = audioBytes.charCodeAt(i);
+        }
+        const blob = new Blob([audioArray], { type: data.audio.content_type });
+        const audioUrl = URL.createObjectURL(blob);
+        setModifiedAudios([audioUrl]);
+      }
+
       setIsProcessing(false);
       setCurrentStep(4);
-    }, 9000); // ⏳ extended delay (9 seconds)
+    } catch (error) {
+      console.error('Error generating audio:', error);
+      setIsProcessing(false);
+      alert('Failed to generate audio. Make sure the backend server is running.');
+    }
   };
 
   const handleStartOver = () => {
