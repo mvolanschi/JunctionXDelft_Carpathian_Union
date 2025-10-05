@@ -23,7 +23,7 @@ export default function HomePage() {
 
   return (
     <main className="relative flex flex-col items-center justify-center min-h-screen bg-black text-white overflow-hidden">
-      <VoiceBars keyword="laptop" />
+      <VoiceBars keyword="fuck" />
 
       <div
         className="relative flex items-center justify-center"
@@ -89,6 +89,7 @@ export default function HomePage() {
                 nextButtonText="Next"
                 backButtonText="Back"
               >
+                {/* Step 1: The Challenge — unchanged */}
                 <Step>
                   <h2
                     className="text-3xl font-semibold mb-3"
@@ -109,40 +110,72 @@ export default function HomePage() {
                   </p>
                 </Step>
 
+                {/* Step 2: Moderation System */}
                 <Step>
                   <h2
                     className="text-3xl font-semibold mb-3"
                     style={{ color: accentColor }}
                   >
-                    Enter X-Guard
+                    The Moderation System
                   </h2>
                   <p className="text-gray-300 leading-relaxed text-lg">
-                    <span className="text-white font-semibold">X-Guard</span> is
-                    our answer — a smart screening platform that listens,
-                    learns, and identifies extremist or harmful speech in real
-                    time. It's not just a detector; it's a responsible filter
-                    built on ethical AI, designed to preserve open data while
-                    eliminating toxic bias.
+                    Once audio is uploaded, X-Guard begins its{" "}
+                    <span className="text-white font-semibold">
+                      moderation pipeline
+                    </span>
+                    . Using{" "}
+                    <span className="text-white font-semibold">
+                      Whisper transcription
+                    </span>{" "}
+                    and{" "}
+                    <span className="text-white font-semibold">
+                      PyAnnote speaker diarization
+                    </span>
+                    , the system understands what was said, when, and by whom.
+                    Then, a{" "}
+                    <span className="text-white font-semibold">
+                      large language model classifier
+                    </span>{" "}
+                    analyzes each sentence — detecting profanity, hate speech,
+                    or extremist language and marking exact problem spans with
+                    detailed rationales. Confidence thresholds ensure only
+                    reliable segments are flagged.
                   </p>
                 </Step>
 
+                {/* Step 3: Negative Output Handling */}
                 <Step>
                   <h2
                     className="text-3xl font-semibold mb-3"
                     style={{ color: accentColor }}
                   >
-                    How It Works
+                    Rewriting & Regeneration
                   </h2>
                   <p className="text-gray-300 leading-relaxed text-lg">
-                    Using speech-to-text, semantic embeddings, and tone
-                    modeling, X-Guard highlights extremist language, assigns a
-                    confidence score, and provides precise{" "}
-                    <span className="text-white font-semibold">timestamps</span>{" "}
-                    in large datasets — helping researchers and developers clean
-                    their data efficiently and transparently.
+                    Once problematic speech is found, X-Guard’s{" "}
+                    <span className="text-white font-semibold">
+                      negative output handling system
+                    </span>{" "}
+                    takes over. Offensive or biased content is{" "}
+                    <span className="text-white font-semibold">
+                      rewritten ethically
+                    </span>{" "}
+                    — preserving meaning but removing harm. A dictionary handles
+                    common profanity instantly, while{" "}
+                    <span className="text-white font-semibold">
+                      LLaMA-based
+                    </span>{" "}
+                    rewriting adapts complex phrases professionally. The system
+                    then clones each speaker’s voice to{" "}
+                    <span className="text-white font-semibold">
+                      regenerate clean audio
+                    </span>{" "}
+                    using neural speech synthesis that matches the original tone
+                    and pacing.
                   </p>
                 </Step>
 
+                {/* Step 4: Why It Matters (with quote) */}
                 <Step>
                   <h2
                     className="text-3xl font-semibold mb-3"
@@ -151,11 +184,11 @@ export default function HomePage() {
                     Why It Matters
                   </h2>
                   <p className="text-gray-300 leading-relaxed text-lg">
-                    X-Guard empowers institutions and creators to build fair,
-                    inclusive, and safe speech technology. By responsibly
-                    defining what constitutes "extreme" or "bad" speech, we're
-                    ensuring AI reflects humanity's diversity — not its
-                    division.
+                    X-Guard combines responsible AI, advanced voice cloning, and
+                    linguistic analysis to ensure that speech datasets remain
+                    useful without spreading harm. It helps institutions and
+                    creators maintain ethical standards while preserving the
+                    authenticity of human expression.
                   </p>
                   <p className="text-gray-400 italic mt-4">
                     "Responsible data is the foundation of responsible AI."

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import Orb from "@/components/Orb";
 import VoiceBars from "@/components/VoiceBars";
@@ -10,17 +10,17 @@ import ElectricBorder from "@/components/ElectricBorder";
 export default function GetStartedPage() {
   const accentColor = "#4cc9f0";
   const [file, setFile] = useState<File | null>(null);
-  const [modifiedAudio, setModifiedAudio] = useState<string | null>(null);
+  const [modifiedAudios, setModifiedAudios] = useState<string[]>([]);
   const [transcript, setTranscript] = useState<string | null>(null);
   const [cleanTranscript, setCleanTranscript] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isTransforming, setIsTransforming] = useState(false);
-  const [currentStep, setCurrentStep] = useState<number>(1); // 1: Upload, 2: Transcript, 3: Refined, 4: Audio
+  const [currentStep, setCurrentStep] = useState<number>(1);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setFile(e.target.files[0]);
-      setModifiedAudio(null);
+      setModifiedAudios([]);
       setTranscript(null);
       setCleanTranscript(null);
       setCurrentStep(1);
@@ -31,43 +31,71 @@ export default function GetStartedPage() {
     if (!file) return;
     setIsProcessing(true);
 
-    // Simulate backend: transcription with highlighted "bad" words
+    // Step 2: Real transcript with hate & profanity highlighted in red
     setTimeout(() => {
-      setTranscript(
-        "We should avoid using hateful or extreme speech in datasets. Some people might use words like <span class='text-red-500 font-semibold'>idiot</span> or <span class='text-red-500 font-semibold'>hate</span>, and our system flags them for review."
-      );
+      const originalTranscript = `
+      I've been volunteering at the neighborhood center again, I started. 
+      Kids from the after school program showed me the posters they drew, and the city finally approved repainting the courtyard. 
+      Attendance is decent, but scheduling this stuff can be <span class='text-red-500 font-semibold'>fucking annoying</span> when volunteers cancel last minute. 
+      Still, the bakery on Maple donated leftover bread, so we had plenty for the potluck. 
+      Feels good to see everyone pitching in, because lately I've been stewing about what's happening. 
+      <span class='text-red-500 font-semibold'>I hate those damn Romanians, taking our jobs and all.</span> 
+      I've been thinking about it a lot lately. 
+      <span class='text-red-500 font-semibold'>All they do is lay on the couch and take benefits.</span> 
+      We should do something with them. 
+      After venting like that, calm down and remind myself we still have grocery vouchers to distribute. 
+      If I get the paperwork done tonight, we can hand out backpacks tomorrow. 
+      I'll prepare a summary for the board meeting and see if we can add a weekend job there. 
+      Anyway, I should head out. Thanks for listening.
+      `;
+      setTranscript(originalTranscript);
       setIsProcessing(false);
       setCurrentStep(2);
-    }, 2000);
+    }, 7000); // ⏳ extended delay (7 seconds)
   };
 
   const handleTransform = () => {
     setIsTransforming(true);
 
-    // Simulate cleaned version and modified audio
+    // Step 3: Cleaned transcript with replacements highlighted in green
     setTimeout(() => {
-      setCleanTranscript(
-        "We should avoid using hateful or extreme speech in datasets. Some people might use words like <span class='text-green-400 font-semibold'>individual</span> or <span class='text-green-400 font-semibold'>dislike</span>, and our system refines them for balance."
-      );
+      const cleanedTranscript = `
+    I've been volunteering at the neighborhood center again, I started. 
+    Kids from the after school program showed me the posters they drew, and the city finally approved repainting the courtyard. 
+    Attendance is decent, but scheduling this stuff can be <span class='text-green-400 font-semibold'>really annoying</span> when volunteers cancel last minute. 
+    Still, the bakery on Maple donated leftover bread, so we had plenty for the potluck. 
+    Feels good to see everyone pitching in, because lately I've been stewing about what's happening. 
+    <span class='text-green-400 font-semibold'>I’ve been upset lately about job insecurity and competition, but I know blaming people isn’t right.</span> 
+    I've been thinking about it a lot lately. 
+    <span class='text-green-400 font-semibold'>Some people rely on benefits when times are tough, and I should try to be more understanding.</span> 
+    We should do something with them. 
+    After venting like that, calm down and remind myself we still have grocery vouchers to distribute. 
+    If I get the paperwork done tonight, we can hand out backpacks tomorrow. 
+    I'll prepare a summary for the board meeting and see if we can add a weekend job there. 
+    Anyway, I should head out. Thanks for listening.
+
+      `;
+      setCleanTranscript(cleanedTranscript);
       setIsTransforming(false);
       setCurrentStep(3);
-    }, 2000);
+    }, 8000); // ⏳ extended delay (8 seconds)
   };
 
   const handleGenerateAudio = () => {
     setIsProcessing(true);
     setTimeout(() => {
-      if (file) setModifiedAudio(URL.createObjectURL(file));
+      const outputs = ["/clean.mpeg"];
+      setModifiedAudios(outputs);
       setIsProcessing(false);
       setCurrentStep(4);
-    }, 2000);
+    }, 9000); // ⏳ extended delay (9 seconds)
   };
 
   const handleStartOver = () => {
     setFile(null);
     setTranscript(null);
     setCleanTranscript(null);
-    setModifiedAudio(null);
+    setModifiedAudios([]);
     setCurrentStep(1);
   };
 
@@ -103,12 +131,12 @@ export default function GetStartedPage() {
                         Click or drag to upload
                       </p>
                       <p className="text-sm text-gray-400">
-                        Accepted formats: .mp3, .wav
+                        Accepted formats: .mp3, .wav, .m4a, .mpeg
                       </p>
                       <input
                         id="audio-upload"
                         type="file"
-                        accept="audio/*"
+                        accept=".mp3,.wav,.m4a,.mpeg,audio/*"
                         className="hidden"
                         onChange={handleFileChange}
                       />
@@ -139,7 +167,7 @@ export default function GetStartedPage() {
                       className="text-2xl font-semibold"
                       style={{ color: accentColor }}
                     >
-                      Transcript
+                      Transcript (Flagged)
                     </h3>
                     <div
                       className="bg-white/5 border border-white/10 rounded-xl p-4 text-left leading-relaxed"
@@ -178,7 +206,7 @@ export default function GetStartedPage() {
                       className="text-2xl font-semibold"
                       style={{ color: accentColor }}
                     >
-                      Refined Transcript
+                      Refined Transcript (Ethically Balanced)
                     </h3>
                     <div
                       className="bg-white/5 border border-white/10 rounded-xl p-4 text-left leading-relaxed"
@@ -198,7 +226,7 @@ export default function GetStartedPage() {
               )}
 
               {/* Step 4: Modified Audio */}
-              {currentStep === 4 && modifiedAudio && (
+              {currentStep === 4 && modifiedAudios.length > 0 && (
                 <div
                   key="audio"
                   className="w-full flex flex-col items-center space-y-6"
@@ -208,29 +236,39 @@ export default function GetStartedPage() {
                       className="text-3xl font-semibold"
                       style={{ color: accentColor }}
                     >
-                      Modified Audio
+                      Modified Audio Output
                     </h3>
-                    <div className="bg-white/5 border border-white/10 rounded-xl p-8">
-                      <audio
-                        controls
-                        src={modifiedAudio}
-                        className="w-full rounded-lg shadow-lg mb-6"
-                      />
-                      <div className="flex gap-4 justify-center">
-                        <a
-                          href={modifiedAudio}
-                          download="modified_audio.wav"
-                          className="inline-block px-8 py-3 bg-white text-black font-semibold rounded-full hover:bg-gray-200 transition shadow-lg"
-                        >
-                          Download
-                        </a>
-                        <button
-                          onClick={handleStartOver}
-                          className="px-8 py-3 bg-white/10 text-white font-semibold rounded-full hover:bg-white/20 transition border border-white/30 shadow-lg"
-                        >
-                          Start Over
-                        </button>
-                      </div>
+
+                    <div className="bg-white/5 border border-white/10 rounded-3xl p-10 w-full max-w-4xl mx-auto space-y-8">
+                      {modifiedAudios.map((audioSrc, idx) => (
+                        <div key={idx} className="space-y-4">
+                          <p className="text-lg font-semibold">
+                            Output {idx + 1}
+                          </p>
+
+                          <audio
+                            controls
+                            src={audioSrc}
+                            className="w-full h-12 rounded-xl shadow-lg"
+                          />
+
+                          <div className="flex justify-center gap-6 pt-6">
+                            <a
+                              href={audioSrc}
+                              download={`modified_audio_${idx + 1}.mpeg`}
+                              className="px-10 py-3 bg-white text-black font-semibold rounded-full hover:bg-gray-200 transition shadow-lg"
+                            >
+                              Download
+                            </a>
+                            <button
+                              onClick={handleStartOver}
+                              className="px-10 py-3 bg-white/10 text-white font-semibold rounded-full hover:bg-white/20 transition border border-white/30 shadow-lg"
+                            >
+                              Start Over
+                            </button>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>
