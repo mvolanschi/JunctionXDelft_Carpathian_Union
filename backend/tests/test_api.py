@@ -58,7 +58,7 @@ def test_transcriptions_endpoint_blocks_invalid_extension() -> None:
     assert resp.get_json()["error"].startswith("Unsupported audio format")
 
 
-def test_moderations_endpoint_extended_calls_negative_handler(monkeypatch):
+def test_moderations_endpoint_always_calls_negative_handler(monkeypatch):
     service = DummyTranscriptionService()
     app = create_app(service=service)
 
@@ -108,7 +108,7 @@ def test_moderations_endpoint_extended_calls_negative_handler(monkeypatch):
             "file": (io.BytesIO(b"sample-bytes"), "meeting.wav"),
         }
         resp = client.post(
-            "/moderations?mode=extended",
+            "/moderations",
             data=data,
             content_type="multipart/form-data",
         )
@@ -116,4 +116,5 @@ def test_moderations_endpoint_extended_calls_negative_handler(monkeypatch):
     assert resp.status_code == 200
     payload = resp.get_json()
     assert payload["negative_output_handling"]["status"] == "stub"
+    assert payload["pipeline_mode"] == "extended"
     assert called["value"] is True

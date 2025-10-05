@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Optional
 
 from flask import Flask, abort, jsonify, request
+from flask_cors import CORS
 
 from .transcription import (
     TranscriptionOptions,
@@ -78,6 +79,22 @@ def create_app(
 ) -> Flask:
     settings = settings or get_settings()
     app = Flask(__name__)
+    allowed_origins = os.getenv("CORS_ALLOW_ORIGINS")
+    if allowed_origins:
+        origin_list = [origin.strip() for origin in allowed_origins.split(",") if origin.strip()]
+    else:
+        origin_list = ["http://localhost:3000", "http://127.0.0.1:3000"]
+    CORS(
+        app,
+        resources={
+            r"/moderations": {"origins": origin_list},
+            r"/transcriptions": {"origins": origin_list},
+            r"/health": {"origins": origin_list},
+        },
+        supports_credentials=False,
+        allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
+        methods=["GET", "POST", "OPTIONS"],
+    )
     transcription_service = service or TranscriptionService(settings)
 
     @app.errorhandler(HTTPStatus.BAD_REQUEST)
@@ -192,13 +209,12 @@ def create_app(
                 "data_base64": base64.b64encode(result.audio_bytes).decode("ascii"),
             }
 
-            requested_mode = (request.form.get("mode") or request.args.get("mode") or "").strip().lower()
-            if requested_mode in {"extended", "negative", "negative_output", "negative_output_handling", "full"}:
-                handler_summary = run_negative_output_handling(
-                    result,
-                    source_filename=safe_name.name,
-                )
-                payload["negative_output_handling"] = handler_summary
+            handler_summary = run_negative_output_handling(
+                result,
+                source_filename=safe_name.name,
+            )
+            payload["negative_output_handling"] = handler_summary
+            payload["pipeline_mode"] = "extended"
 
             return jsonify(payload)
         finally:

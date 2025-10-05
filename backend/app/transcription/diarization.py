@@ -5,9 +5,13 @@ import os
 import subprocess
 import tempfile
 import threading
+import wave
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable, Iterable, List, Optional
+
+import numpy as np
+import torch
 
 from .config import TranscriptionSettings
 
@@ -30,13 +34,23 @@ def _load_pyannote_pipeline(settings: TranscriptionSettings) -> Any:
             "Install them via 'pip install pyannote.audio torch torchaudio'."
         ) from exc
 
-    kwargs: dict[str, Any] = {}
-    if settings.diarization_auth_token:
-        kwargs["use_auth_token"] = settings.diarization_auth_token
-
     model_id = settings.diarization_model_id
     logger.info("Loading diarization pipeline '%s'", model_id)
-    return Pipeline.from_pretrained(model_id, **kwargs)
+    token = settings.diarization_auth_token
+
+    if not token:
+        return Pipeline.from_pretrained(model_id)
+
+    try:
+        return Pipeline.from_pretrained(model_id, token=token)
+    except TypeError as exc:
+        # pyannote < 3.2 expects `use_auth_token` instead of the new `token` keyword.
+        if "unexpected keyword argument 'token'" not in str(exc):
+            raise
+        logger.info(
+            "Diarization pipeline rejected 'token' argument; retrying with legacy 'use_auth_token'"
+        )
+        return Pipeline.from_pretrained(model_id, use_auth_token=token)
 
 
 class DiarizationService:
@@ -68,7 +82,8 @@ class DiarizationService:
         cleanup_path: Path | None = None
         try:
             resolved_path, cleanup_path = _prepare_audio_for_diarization(Path(audio_path))
-            diarization_result = pipeline(str(resolved_path))
+            waveform_input = _load_waveform_for_pyannote(resolved_path)
+            diarization_result = pipeline(waveform_input)
         finally:
             if cleanup_path is not None and cleanup_path.exists():
                 try:
@@ -77,7 +92,21 @@ class DiarizationService:
                     logger.debug("Unable to remove temporary file '%s'", cleanup_path, exc_info=True)
 
         turns: List[SpeakerTurn] = []
-        for segment, _, speaker in diarization_result.itertracks(yield_label=True):
+        annotation = getattr(diarization_result, "speaker_diarization", diarization_result)
+
+        try:
+            track_iter = annotation.itertracks(yield_label=True)
+        except AttributeError:
+            try:
+                track_iter = annotation.itertracks()
+            except AttributeError as exc:  # pragma: no cover - incompatible pyannote version
+                raise RuntimeError(
+                    "Unexpected diarization output without 'itertracks'."
+                ) from exc
+            else:
+                track_iter = ((segment, None, speaker) for segment, speaker in track_iter)
+
+        for segment, _, speaker in track_iter:
             turns.append(
                 SpeakerTurn(
                     speaker=str(speaker),
@@ -144,6 +173,8 @@ def _prepare_audio_for_diarization(audio_path: Path) -> tuple[Path, Path | None]
         "1",
         "-ar",
         "16000",
+        "-sample_fmt",
+        "s16",
         "-vn",
         temp_file.as_posix(),
     ]
@@ -165,3 +196,40 @@ def _prepare_audio_for_diarization(audio_path: Path) -> tuple[Path, Path | None]
         ) from exc
 
     return temp_file, temp_file
+
+
+def _load_waveform_for_pyannote(audio_path: Path) -> dict[str, Any]:
+    """Return a pyannote-compatible mapping that carries waveform data."""
+
+    with wave.open(str(audio_path), "rb") as wav_file:
+        sample_rate = wav_file.getframerate()
+        num_channels = wav_file.getnchannels()
+        sample_width = wav_file.getsampwidth()
+        num_frames = wav_file.getnframes()
+        audio_bytes = wav_file.readframes(num_frames)
+
+    if sample_width == 2:
+        dtype = np.int16
+        scale = 32768.0
+    elif sample_width == 4:
+        dtype = np.int32
+        scale = 2147483648.0
+    else:
+        raise RuntimeError(
+            f"Unsupported PCM sample width {sample_width * 8} bits for '{audio_path.name}'."
+        )
+
+    waveform = np.frombuffer(audio_bytes, dtype=dtype)
+    if num_channels > 1:
+        waveform = waveform.reshape(-1, num_channels).T
+        waveform = waveform.mean(axis=0, keepdims=True)
+    else:
+        waveform = waveform.reshape(1, -1)
+
+    tensor = torch.from_numpy(waveform.astype(np.float32) / scale)
+
+    return {
+        "waveform": tensor,
+        "sample_rate": sample_rate,
+        "uri": audio_path.stem,
+    }
