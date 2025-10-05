@@ -34,6 +34,8 @@ pip install -r requirements.txt
 FLASK_APP=app.main:app flask run --host 0.0.0.0 --port 8000 --debug
 ```
 
+> The root `requirements.txt` now covers both the core API stack and the optional Negative Output Handling utilities, so a single `pip install -r requirements.txt` keeps every component in sync.
+
 Browse to <http://localhost:8000/health> for a quick readiness probe.
 
 ### Environment configuration

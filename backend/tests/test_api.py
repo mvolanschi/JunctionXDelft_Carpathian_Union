@@ -5,6 +5,8 @@ from typing import Optional, Tuple
 
 from app.main import create_app
 from app.transcription import Segment, TranscriptionOptions, TranscriptionResult
+from app.moderation_pipeline import ModerationResult, ClassifiedSegment
+from app.classification_model.hate_speech_classifier import ClassificationOutput
 
 
 class DummyTranscriptionService:
@@ -54,3 +56,64 @@ def test_transcriptions_endpoint_blocks_invalid_extension() -> None:
 
     assert resp.status_code == 415
     assert resp.get_json()["error"].startswith("Unsupported audio format")
+
+
+def test_moderations_endpoint_extended_calls_negative_handler(monkeypatch):
+    service = DummyTranscriptionService()
+    app = create_app(service=service)
+
+    class StubPipeline:
+        def run(self, audio_path, *, options=None):
+            classification = ClassificationOutput(
+                label="NONE",
+                rationale="",
+                spans=[],
+                safety={"used_asr_confidence_rule": False, "notes": ""},
+            )
+            segment = ClassifiedSegment(
+                index=0,
+                start=0.0,
+                end=1.0,
+                text="hello world",
+                speaker="SPEAKER_00",
+                classification=classification,
+            )
+            return ModerationResult(
+                transcript="hello world",
+                language="en",
+                duration=1.0,
+                segments=[segment],
+                audio_bytes=b"fake-bytes",
+            )
+
+    called: dict[str, bool] = {"value": False}
+
+    def fake_run(result, *, source_filename: str, output_root=None):
+        called["value"] = True
+        return {
+            "status": "stub",
+            "summary": {
+                "total_segments": len(result.segments),
+                "flagged_segments": 0,
+                "flagged_indexes": [],
+                "label_counts": {},
+            },
+        }
+
+    monkeypatch.setattr("app.main.AudioModerationPipeline", lambda *args, **kwargs: StubPipeline())
+    monkeypatch.setattr("app.main.run_negative_output_handling", fake_run)
+
+    with app.test_client() as client:
+        data = {
+            "file": (io.BytesIO(b"sample-bytes"), "meeting.wav"),
+        }
+        resp = client.post(
+            "/moderations?mode=extended",
+            data=data,
+            content_type="multipart/form-data",
+        )
+
+    assert resp.status_code == 200
+    payload = resp.get_json()
+    assert payload["negative_output_handling"]["status"] == "stub"
+    assert called["value"] is True

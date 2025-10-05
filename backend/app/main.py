@@ -16,6 +16,7 @@ from .transcription import (
     get_settings,
 )
 from .moderation_pipeline import AudioModerationPipeline
+from .negative_output_handling import run_negative_output_handling
 import base64
 
 ALLOWED_AUDIO_SUFFIXES = {".wav", ".mp3", ".m4a", ".ogg", ".flac", ".webm"}
@@ -190,6 +191,14 @@ def create_app(
                 "content_type": f"audio/{audio_suffix}",
                 "data_base64": base64.b64encode(result.audio_bytes).decode("ascii"),
             }
+
+            requested_mode = (request.form.get("mode") or request.args.get("mode") or "").strip().lower()
+            if requested_mode in {"extended", "negative", "negative_output", "negative_output_handling", "full"}:
+                handler_summary = run_negative_output_handling(
+                    result,
+                    source_filename=safe_name.name,
+                )
+                payload["negative_output_handling"] = handler_summary
 
             return jsonify(payload)
         finally:

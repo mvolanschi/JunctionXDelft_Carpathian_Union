@@ -21,33 +21,40 @@ Usage:
     result = await processor.process_complete()
 """
 
+import asyncio
 import json
 import os
-import asyncio
+import tempfile
+from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
-from dataclasses import dataclass
+from typing import Dict, List, Optional
 
 from content_rewriter import GroqContentRewriter
 from advanced_voice_generator import AdvancedVoiceGenerator, create_voice_config
 
 
-@dataclass
+@dataclass(slots=True)
+class GeneratedAudio:
+    segment_index: int
+    speaker_id: str
+    filename: str
+    data: bytes
+    content_type: str = "audio/mp3"
+
+
+@dataclass(slots=True)
 class ProcessingResult:
     """Result of the complete speech processing pipeline."""
+
     success: bool
-    output_json_path: Optional[Path] = None
-    generated_audio_files: List[Path] = None
     processed_segments: int = 0
     total_segments: int = 0
-    errors: List[str] = None
-    
-    def __post_init__(self):
-        if self.generated_audio_files is None:
-            self.generated_audio_files = []
-        if self.errors is None:
-            self.errors = []
+    data: Optional[Dict] = None
+    generated_audio: List[GeneratedAudio] = field(default_factory=list)
+    errors: List[str] = field(default_factory=list)
+    output_json_path: Optional[Path] = None
+    generated_audio_files: List[Path] = field(default_factory=list)
 
 
 class SpeechProcessor:
@@ -58,7 +65,8 @@ class SpeechProcessor:
         input_json_path: str,
         reference_audio_path: str,
         output_dir: str = "output",
-        config_path: str = "../config/api_keys.json"
+        config_path: str = "../config/api_keys.json",
+        persist_outputs: bool = True,
     ):
         """
         Initialize the speech processor.
@@ -73,9 +81,11 @@ class SpeechProcessor:
         self.reference_audio_path = Path(reference_audio_path)
         self.output_dir = Path(output_dir)
         self.config_path = Path(config_path)
+        self.persist_outputs = persist_outputs
         
-        # Create output directory
-        self.output_dir.mkdir(parents=True, exist_ok=True)
+        # Create output directory when persistence is enabled
+        if self.persist_outputs:
+            self.output_dir.mkdir(parents=True, exist_ok=True)
         
         # Initialize components
         self.content_rewriter = None
@@ -254,17 +264,23 @@ class SpeechProcessor:
             
             # Step 4: Generate audio for rewritten segments
             print(f"\n🎤 Step 2: Generating audio for rewritten segments...")
-            audio_files = await self._generate_audio_for_segments(processed_data)
+            audio_files, audio_payloads = await self._generate_audio_for_segments(processed_data)
             
             # Step 5: Save output JSON and update with audio file paths
             print(f"\n💾 Step 3: Saving output files...")
-            output_json_path = await self._save_output_json(processed_data, audio_files)
+            output_json_path = await self._save_output_json(
+                processed_data,
+                audio_files,
+                audio_payload_count=len(audio_payloads),
+            )
             
             # Success!
             result.success = True
             result.output_json_path = output_json_path
             result.generated_audio_files = audio_files
+            result.generated_audio = audio_payloads
             result.processed_segments = len([s for s in processed_data['segments'] if s.get('was_rewritten')])
+            result.data = processed_data
             
             print(f"\n🎉 SUCCESS! Processing completed:")
             print(f"   📁 Output JSON: {result.output_json_path}")
@@ -318,14 +334,20 @@ class SpeechProcessor:
         print(f"   📊 Rewritten {rewritten_count} segments with offensive content")
         return processed_data
     
-    async def _generate_audio_for_segments(self, processed_data: Dict) -> List[Path]:
+    async def _generate_audio_for_segments(self, processed_data: Dict) -> tuple[List[Path], List[GeneratedAudio]]:
         """Generate audio files for all rewritten segments."""
-        audio_files = []
-        
-        # Create audio output directory
+        audio_files: List[Path] = []
+        audio_payloads: List[GeneratedAudio] = []
+
+        # Create audio output directory (temporary when persistence disabled)
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        audio_output_dir = self.output_dir / f"generated_audio_{timestamp}"
-        audio_output_dir.mkdir(parents=True, exist_ok=True)
+        temp_dir: Optional[tempfile.TemporaryDirectory[str]] = None
+        if self.persist_outputs:
+            audio_output_dir = self.output_dir / f"generated_audio_{timestamp}"
+            audio_output_dir.mkdir(parents=True, exist_ok=True)
+        else:
+            temp_dir = tempfile.TemporaryDirectory(prefix="neg_output_audio_")
+            audio_output_dir = Path(temp_dir.name)
         
         # Get segments that were rewritten
         rewritten_segments = [
@@ -335,7 +357,7 @@ class SpeechProcessor:
         
         if not rewritten_segments:
             print("   ℹ️ No segments need audio generation")
-            return audio_files
+            return audio_files, audio_payloads
         
         print(f"   🎵 Generating audio for {len(rewritten_segments)} rewritten segments...")
         
@@ -356,9 +378,23 @@ class SpeechProcessor:
                 
                 if success and audio_path.exists():
                     # Update segment with audio file path
-                    segment['generated_audio_file'] = str(audio_path.relative_to(self.output_dir))
-                    audio_files.append(audio_path)
-                    
+                    if self.persist_outputs:
+                        segment['generated_audio_file'] = str(audio_path.relative_to(self.output_dir))
+                        audio_files.append(audio_path)
+                    else:
+                        audio_bytes = audio_path.read_bytes()
+                        audio_payloads.append(
+                            GeneratedAudio(
+                                segment_index=segment_idx,
+                                speaker_id=speaker_id,
+                                filename=audio_filename,
+                                data=audio_bytes,
+                            )
+                        )
+                        segment['generated_audio'] = {
+                            "filename": audio_filename,
+                            "content_type": "audio/mp3",
+                        }
                     file_size = audio_path.stat().st_size
                     print(f"✓ ({file_size:,} bytes)")
                 else:
@@ -367,28 +403,38 @@ class SpeechProcessor:
             except Exception as e:
                 print(f"❌ Error: {e}")
         
-        return audio_files
+        # Clean up temporary directory when persistence is disabled
+        if temp_dir is not None:
+            temp_dir.cleanup()
+
+        return audio_files, audio_payloads
     
-    async def _save_output_json(self, processed_data: Dict, audio_files: List[Path]) -> Path:
+    async def _save_output_json(
+        self,
+        processed_data: Dict,
+        audio_files: List[Path],
+        *,
+        audio_payload_count: int,
+    ) -> Optional[Path]:
         """Save the processed data to output JSON."""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        output_json_path = self.output_dir / f"cleaned_transcription_{timestamp}.json"
-        
-        # Add processing metadata
         processed_data['processing_info'] = {
             'timestamp': timestamp,
             'original_file': str(self.input_json_path),
             'reference_audio': str(self.reference_audio_path),
             'total_segments': len(processed_data['segments']),
             'rewritten_segments': len([s for s in processed_data['segments'] if s.get('was_rewritten')]),
-            'generated_audio_files': len(audio_files),
+            'generated_audio_files': len(audio_files) if self.persist_outputs else audio_payload_count,
             'processor_version': '1.0'
         }
-        
-        # Save to file
+
+        if not self.persist_outputs:
+            return None
+
+        output_json_path = self.output_dir / f"cleaned_transcription_{timestamp}.json"
         with open(output_json_path, 'w', encoding='utf-8') as f:
             json.dump(processed_data, f, indent=2, ensure_ascii=False)
-        
+
         return output_json_path
 
 

@@ -11,7 +11,7 @@ from speech_processor import process_transcription
 result = await process_transcription(
     input_json_path="input_transcription.json",
     reference_audio_path="reference_voice.mp3",
-    output_dir="output/"
+  output_dir="output/"
 )
 
 if result.success:
@@ -30,7 +30,7 @@ if result.success:
 - **`utils.py`** - Utility functions
 
 ### Configuration
-- **`requirements.txt`** - Python dependencies
+- **Dependencies** – managed via the shared `../../requirements.txt`
 - **`SETUP.md`** - Setup instructions
 - **`../config/api_keys.json`** - API key configuration
 
@@ -40,7 +40,8 @@ if result.success:
 2. **✏️ Rewrite Content** - Uses AI/fallback to clean offensive language
 3. **🎤 Clone Voice** - Creates voice clone from reference audio (once)
 4. **🔊 Generate Audio** - Creates new audio files for all cleaned segments
-5. **💾 Save Output** - Exports clean JSON + organized audio files
+5. **💾 Save Output** - Exports clean JSON + organized audio files (optional when
+  ``persist_outputs=False`` for in-memory API responses)
 
 ## 📊 Input/Output Format
 
@@ -144,7 +145,8 @@ processor = SpeechProcessor(
     input_json_path="input.json",
     reference_audio_path="reference.mp3", 
     output_dir="output/",
-    config_path="custom_config.json"
+  config_path="custom_config.json",
+  persist_outputs=True  # Set to False for in-memory API responses
 )
 
 result = await processor.process_complete()
@@ -160,7 +162,7 @@ result = await processor.process_complete()
 ## 🔧 Installation
 
 ```bash
-pip install -r requirements.txt
+pip install -r ../../requirements.txt
 ```
 
 ## 🎉 Features
