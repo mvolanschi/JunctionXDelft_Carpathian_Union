@@ -23,7 +23,7 @@ export default function HomePage() {
 
   return (
     <main className="relative flex flex-col items-center justify-center min-h-screen bg-black text-white overflow-hidden">
-      <VoiceBars keyword="fuck" />
+      <VoiceBars keyword="jerk" />
 
       <div
         className="relative flex items-center justify-center"
