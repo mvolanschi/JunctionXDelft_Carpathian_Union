@@ -1,0 +1,193 @@
+{
+  "speakers": {},
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 5.5200000000000005,
+      "speaker_id": "speaker_0",
+      "text": "I've been volunteering at the neighborhood center again, I started.",
+      "offensive_parts": [],
+      "was_rewritten": false
+    },
+    {
+      "start": 5.5200000000000005,
+      "end": 8.98,
+      "speaker_id": "speaker_1",
+      "text": "Kids from the afterschool program showed me the posters they drew, and the city finally",
+      "offensive_parts": [],
+      "was_rewritten": false
+    },
+    {
+      "start": 8.98,
+      "end": 11.08,
+      "speaker_id": "speaker_2",
+      "text": "approved repainting the courtyard.",
+      "offensive_parts": [],
+      "was_rewritten": false
+    },
+    {
+      "start": 11.08,
+      "end": 15.280000000000001,
+      "speaker_id": "speaker_3",
+      "text": "Attendance is decent, but scheduling this stuff can be really annoying when volunteers cancel",
+      "offensive_parts": [
+        {
+          "start": 11.08,
+          "end": 15.280000000000001,
+          "text": "fucking annoying",
+          "severity": "medium",
+          "rationale": "Contains profanity without targeting a protected class.",
+          "char_start": 41,
+          "char_end": 56
+        }
+      ],
+      "original_text": "Attendance is decent, but scheduling this stuff can be fucking annoying when volunteers cancel",
+      "was_rewritten": true,
+      "generated_audio_file": "generated_audio_20251005_021452\\speaker_3_segment_003.mp3"
+    },
+    {
+      "start": 15.280000000000001,
+      "end": 16.28,
+      "speaker_id": "speaker_4",
+      "text": "last minute.",
+      "offensive_parts": [],
+      "was_rewritten": false
+    },
+    {
+      "start": 16.28,
+      "end": 21.12,
+      "speaker_id": "speaker_5",
+      "text": "Still, the bakery and maple donated leftover bread, so we had plenty for the potluck.",
+      "offensive_parts": [],
+      "was_rewritten": false
+    },
+    {
+      "start": 21.12,
+      "end": 25.88,
+      "speaker_id": "speaker_6",
+      "text": "Feels good to see everyone pitching in, because lately I've been stewing about what's happening.",
+      "offensive_parts": [],
+      "was_rewritten": false
+    },
+    {
+      "start": 25.88,
+      "end": 28.64,
+      "speaker_id": "speaker_7",
+      "text": "I hate those very Romanians, taking our jobs and all.",
+      "offensive_parts": [
+        {
+          "start": 25.88,
+          "end": 28.64,
+          "text": "I hate those damn Romanians, taking our jobs and all",
+          "severity": "high",
+          "rationale": "Contains derogatory language and discriminatory sentiment towards Romanians, a protected class, implying they are taking jobs from others.",
+          "char_start": 0,
+          "char_end": 44
+        }
+      ],
+      "original_text": "I hate those damn Romanians, taking our jobs and all.",
+      "was_rewritten": true,
+      "generated_audio_file": "generated_audio_20251005_021452\\speaker_7_segment_007.mp3"
+    },
+    {
+      "start": 28.64,
+      "end": 30.96,
+      "speaker_id": "speaker_8",
+      "text": "I've been thinking about it a lot lately.",
+      "offensive_parts": [],
+      "was_rewritten": false
+    },
+    {
+      "start": 30.96,
+      "end": 33.72,
+      "speaker_id": "speaker_9",
+      "text": "All they do is lay on the couch and take benefits.",
+      "offensive_parts": [
+        {
+          "start": 30.96,
+          "end": 33.72,
+          "text": "lay on the couch and take benefits",
+          "severity": "high",
+          "rationale": "Contains derogatory language towards individuals receiving benefits, implying they are lazy and undeserving.",
+          "char_start": 17,
+          "char_end": 43
+        }
+      ],
+      "original_text": "All they do is lay on the couch and take benefits.",
+      "was_rewritten": true,
+      "generated_audio_file": "generated_audio_20251005_021452\\speaker_9_segment_009.mp3"
+    },
+    {
+      "start": 33.72,
+      "end": 35.44,
+      "speaker_id": "speaker_10",
+      "text": "We should do something with them.",
+      "offensive_parts": [],
+      "was_rewritten": false
+    },
+    {
+      "start": 35.44,
+      "end": 39.52,
+      "speaker_id": "speaker_11",
+      "text": "After venting like that, calm down and remind myself we still have grocery vouchers to",
+      "offensive_parts": [],
+      "was_rewritten": false
+    },
+    {
+      "start": 39.52,
+      "end": 40.52,
+      "speaker_id": "speaker_12",
+      "text": "distribute.",
+      "offensive_parts": [],
+      "was_rewritten": false
+    },
+    {
+      "start": 40.52,
+      "end": 44.16,
+      "speaker_id": "speaker_13",
+      "text": "If I get the paperwork done tonight, we can hand out backpacks tomorrow.",
+      "offensive_parts": [],
+      "was_rewritten": false
+    },
+    {
+      "start": 44.16,
+      "end": 49.68,
+      "speaker_id": "speaker_14",
+      "text": "I'll prepare a summary for the board meeting and see if we can add a weekend job there.",
+      "offensive_parts": [],
+      "was_rewritten": false
+    },
+    {
+      "start": 49.68,
+      "end": 51.24,
+      "speaker_id": "speaker_15",
+      "text": "Anyway, I should head out.",
+      "offensive_parts": [],
+      "was_rewritten": false
+    },
+    {
+      "start": 51.24,
+      "end": 51.84,
+      "speaker_id": "speaker_16",
+      "text": "Thanks for listening.",
+      "offensive_parts": [],
+      "was_rewritten": false
+    }
+  ],
+  "metadata": {
+    "original_transcript": "I've been volunteering at the neighborhood center again, I started. Kids from the afterschool program showed me the posters they drew, and the city finally approved repainting the courtyard. Attendance is decent, but scheduling this stuff can be fucking annoying when volunteers cancel last minute. Still, the bakery and maple donated leftover bread, so we had plenty for the potluck. Feels good to see everyone pitching in, because lately I've been stewing about what's happening. I hate those damn Romanians, taking our jobs and all. I've been thinking about it a lot lately. All they do is lay on the couch and take benefits. We should do something with them. After venting like that, calm down and remind myself we still have grocery vouchers to distribute. If I get the paperwork done tonight, we can hand out backpacks tomorrow. I'll prepare a summary for the board meeting and see if we can add a weekend job there. Anyway, I should head out. Thanks for listening.",
+    "language": "en",
+    "duration": 53.9306875,
+    "audio_filename": "shmarnalysis.m4a",
+    "source": "classified_audio_json_verified"
+  },
+  "processing_info": {
+    "timestamp": "20251005_021504",
+    "original_file": "c:\\Users\\vladc\\OneDrive\\Escritorio\\CodingProjects\\JunctionXDelft_Carpathian_Union\\backend\\NegativeOutputHandling\\Data\\real_processing_output\\temp_input_092120e4.json",
+    "reference_audio": "c:\\Users\\vladc\\OneDrive\\Escritorio\\CodingProjects\\JunctionXDelft_Carpathian_Union\\backend\\NegativeOutputHandling\\Data\\real_processing_output\\temp_reference_audio_f737748d.m4a",
+    "total_segments": 17,
+    "rewritten_segments": 3,
+    "generated_audio_files": 3,
+    "processor_version": "1.0"
+  }
+}

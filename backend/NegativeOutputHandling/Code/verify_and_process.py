@@ -297,10 +297,16 @@ async def process_with_verification(
     print(f"   🎤 Reference audio: {temp_audio_path}")
     print(f"   📂 Output dir: {output_dir}")
     
+    # Create absolute config path 
+    script_dir = Path(__file__).parent
+    config_path = script_dir.parent / "config" / "api_keys.json"
+    print(f"   🔍 Looking for config at: {config_path}")
+    
     processor = SpeechProcessor(
         input_json_path=str(temp_json_path),
         reference_audio_path=str(temp_audio_path),
-        output_dir=output_dir
+        output_dir=output_dir,
+        config_path=str(config_path)
     )
     
     # Step 4: Run processing pipeline

@@ -157,10 +157,14 @@ class SpeechProcessor:
             # Load ElevenLabs API key
             elevenlabs_api_key = None
             
+            print(f"🔍 Config path: {self.config_path}")
+            print(f"🔍 Config exists: {self.config_path.exists()}")
+            
             if self.config_path.exists():
                 with open(self.config_path, 'r') as f:
                     config_data = json.load(f)
                     elevenlabs_api_key = config_data.get('elevenlabs_api_key')
+                    print(f"🔍 Found API key: {elevenlabs_api_key[:10] if elevenlabs_api_key else 'None'}...")
             
             if not elevenlabs_api_key:
                 print("❌ ElevenLabs API key not found")
