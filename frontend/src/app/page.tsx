@@ -175,7 +175,54 @@ export default function HomePage() {
                   </p>
                 </Step>
 
-                {/* Step 4: Why It Matters (with quote) */}
+                {/* 🧠 NEW Step 4: Prompt Engineering */}
+                <Step>
+                  <h2
+                    className="text-3xl font-semibold mb-3"
+                    style={{ color: accentColor }}
+                  >
+                    The Prompt Intelligence
+                  </h2>
+                  <p className="text-gray-300 leading-relaxed text-lg">
+                    Behind every moderation and rewriting decision lies an{" "}
+                    <span className="text-white font-semibold">
+                      engineered prompt system
+                    </span>{" "}
+                    — the true brain of X-Guard. It carefully shapes how our
+                    large language models think, analyze, and respond. Instead
+                    of open-ended AI chatter, each prompt defines a structured
+                    reasoning path:{" "}
+                    <span className="text-white font-semibold">
+                      classify → explain → repair
+                    </span>
+                    . This ensures the model identifies why a phrase is harmful,
+                    pinpoints the intent, and reconstructs it into ethical,
+                    context-preserving language.
+                  </p>
+                  <p className="text-gray-300 leading-relaxed text-lg mt-3">
+                    The prompt system also encodes{" "}
+                    <span className="text-white font-semibold">
+                      moral alignment rules
+                    </span>{" "}
+                    — guardrails that prevent over-censorship while protecting
+                    freedom of expression. Each instruction is deterministic,
+                    with fixed temperature, seed, and tone control. The result:
+                    every moderation task behaves predictably, like a human
+                    editor guided by clear principles rather than arbitrary AI
+                    behavior.
+                  </p>
+                  <p className="text-gray-300 leading-relaxed text-lg mt-3">
+                    Over time, X-Guard’s prompts evolve through{" "}
+                    <span className="text-white font-semibold">
+                      reinforcement from human feedback
+                    </span>{" "}
+                    — learning cultural nuances, adapting tone sensitivity, and
+                    refining contextual empathy. It’s not just AI moderation —
+                    it’s prompt-driven moral reasoning at scale.
+                  </p>
+                </Step>
+
+                {/* Step 5: Why It Matters (with quote) */}
                 <Step>
                   <h2
                     className="text-3xl font-semibold mb-3"
